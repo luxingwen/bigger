@@ -1,0 +1,50 @@
+{{template "header"}}
+<title>理想--每日一涂</title>
+<body>
+
+{{template "nav" .}}
+<div class="container mycontainer">
+
+<div class="row">
+	<div class="col-md-3">
+		 {{template "user" .}}
+	</div>
+	<div class="col-md-9">
+		<section>
+		<h4>我的作品:</h4>
+		<div class="row mt media-fam" id="myphotos">
+				</div>
+	</section>
+	</div>
+</div>
+</div>
+
+<script>
+	$(function(){
+		 $.ajax({
+	            	url: '/api/my/photos',
+	            	type : 'get',
+	            	success:function(res){
+	            		if(res.code==0){
+	            			listPhoto(res.data)
+	            		}else{
+	            			alert(res.msg);
+	            		}
+	            	}
+	            });
+	})
+
+	function listPhoto(res){
+		console.log("photo list--->"+JSON.stringify(res));
+		for (var i = res.length - 1; i >= 0; i--) {
+			console.log("photo pic--->"+res[i].pic);
+			var str="<div class=\"col-lg-3 col-md-3 col-sm-3 col-xs-12 desc\">";
+			str+="<div class=\"photo item\">";
+			str+="<a href=\""+res[i].pic+"\"><img class=\"img-responsive\" src=\""+res[i].pic+"\" alt=\"\"></a>";
+			str+="</div> </div>";
+			console.log("str--->"+str);
+			$("#myphotos").append(str);
+		}
+	}
+</script>
+{{template "foot"}}

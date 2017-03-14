@@ -1,0 +1,161 @@
+{{template "header"}}
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-default/index.css">
+
+<style>
+  .createGoods{
+    width: 600px;
+    margin: 0 auto;
+  }
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #20a0ff;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+</style>
+<title>理想--每日一涂</title>
+  </head>
+  <body>
+{{template "nav" .}}
+
+
+<div class="container mycontainer">
+  <div class="row">
+    <div class="col-md-3">
+      {{template "user" .}}
+    </div>
+    <div class="col-md-9">
+      <div id="apptt">
+         <el-form :model="photo" :rules="rules" ref="photo" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="图片名称" prop="name">
+              <el-input v-model="photo.name"></el-input>
+            </el-form-item>
+              <el-form-item label="图片描述" prop="desc">
+              <el-input type="textarea" v-model="photo.desc"></el-input>
+            </el-form-item>
+           <el-form-item label="添加图片" prop="pic">
+              <el-upload
+              class="avatar-uploader"
+              action="/files"
+              :show-file-list="false"
+              :on-success="handleAvatarScucess"
+              :before-upload="beforeAvatarUpload">
+              <img v-if="imageUrl" :src="imageUrl" class="avatar">
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </el-form-item>
+           <el-form-item>
+            <el-button type="primary" @click="submitForm('photo')">保存</el-button>
+            <el-button @click="resetForm('photo')">重置</el-button>
+          </el-form-item>
+          </el-form>
+      </div>
+    </div>
+  </div> 
+ </div>
+
+
+
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <!-- 引入组件库 -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+
+
+new Vue({
+  el: '#apptt',
+  data() {
+      return {
+        imageUrl: '',
+        photo: {
+          name: '',
+          desc: '',
+          pic: '',
+        },
+         rules: {
+          name: [
+            { required: true, message: '请输入作品名称', trigger: 'blur' },
+            { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+          ],
+          desc: [
+            { required: true, message: '请输入作品描述', trigger: 'change' },
+            { min: 3, message: '长度在 3个字符以上', trigger: 'blur' }
+          ],
+          pic: [
+             { required: true, message: '请上传图片', trigger: 'blur' }
+          ]
+        }
+      };
+    },
+
+    methods: {
+      submitForm(formName) {
+        this.$refs[formName].validate((valid) => {
+
+          if (valid) {
+             console.log("photo--->"+JSON.stringify(this.photo));
+              $.ajax({
+                url: '/my/photo',
+                type : 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(this.photo),
+                success:function(res){
+                  if(res.code==0){
+                    window.location.href="/my";
+                  }
+                }
+              });
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+        });
+      },
+      resetForm(formName) {
+        this.$refs[formName].resetFields();
+      },
+      handleAvatarScucess(res, file) {
+        console.log("res--->"+JSON.stringify(res));
+        this.imageUrl = URL.createObjectURL(file.raw);
+        if(res.code==0){
+           this.photo.pic=res.data.src;
+        }  
+      },
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 20;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 20MB!');
+        }
+        return isJPG && isLt2M;
+      }
+    }
+  })
+
+$(function(){
+  $('.el-upload__input').css("display","none");
+})
+</script>
+
+{{template "foot"}}

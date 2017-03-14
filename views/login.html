@@ -1,0 +1,88 @@
+{{template "header"}}
+<title>理想--每日一涂</title>
+<body>
+
+{{template "nav" .}}
+  <div class="container mycontainer">
+<div class="row">
+	<div class="col-md-2"></div>
+	<div class="col-md-8">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span class="glyphicon glyphicon-home" aria-hidden="true"></span>登录
+			</div>
+			<div class="panel-body">
+			<div class="row">
+				 <div class="col-md-6">
+					 <form class="form-signin" method="post" action="/login">
+						 <h3 >
+           <span class="glyphicon glyphicon-user" aria-hidden="true"></span> 登录
+                    </h3>
+
+							<div class="form-group">
+								<label for="exampleInputEmail1">Email address</label>
+								<input type="email" class="form-control" id="email" placeholder="Email" name="email">
+						</div>
+						<div class="form-group">
+									<label for="exampleInputPassword1">Password</label>
+									<input type="password" class="form-control" id="password" placeholder="Password" name="password">
+						</div>
+						<div class="checkbox">
+						<label>
+						<input type="checkbox"> Remember me
+						</label>
+						</div>
+						<label>验证码</label>
+						<img  id="captcha" src="/captcha/{{.CaptchaId}}.png" onclick="this.src=('/captcha/{{.CaptchaId}}.png?reload='+(new Date()).getTime())" />
+	                                    <input type="text" class="form-control" id="captchaSolution" name=captchaSolution  placeholder="请输入验证码">
+						<input type=hidden id="captchaId" name=captchaId value="{{.CaptchaId}}"><br>
+							 <p>点击图片刷新</p>
+					<div class="row">
+  					<div class="col-md-6">
+								<button class="btn btn-primary " onclick="login()">登陆</button>
+						</div>
+						<div class="col-md-6">
+						<a href="" class="btn btn-default pull-right">忘记密码</a>
+						</div>
+					</div>
+					 </form>
+				 </div>
+				 <div class="col-md-6">
+					 <h3>
+                <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span> 帮助
+					 </h3>
+					 <h5>如果您还没有注册帐户的话，请先注册。</h5>
+					 <a class="btn btn-default" href="/register" role="button">立即注册</a>
+				 </div>
+			</div>
+			</div>
+		</div>
+	</div>
+		<div class="col-md-2"></div>
+</div>
+     </div>
+
+ <script type="text/javascript">
+ 	function login(){
+ 		var email=$("#email").val();
+ 		var password=$("#password").val();
+ 		var captchaId=$("#captchaId").val();
+ 		var captchaSolution=$("#captchaSolution").val();
+ 		var user={"email":email,"password":password,"captchaId":captchaId,"captchaSolution":captchaSolution};
+ 		 $.ajax({
+	            	url: '/login',
+	            	type : 'POST',
+	            	contentType: 'application/json',
+	            	data: JSON.stringify(user),
+	            	success:function(res){
+	            		if(res.code==0){
+	            			window.location.href="/my?token="+res.data.token;
+	            		}else{
+	            			alert(res.msg);
+	            		}
+	            	}
+	            });
+ 	}
+ </script>
+
+{{template "foot"}}
